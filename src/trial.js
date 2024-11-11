@@ -9,7 +9,7 @@ app.get("/user",(req,res)=>{
     console.log(req.query)
     res.send({"First Name":"Irfan","Last Name":"Parwez"})
 })
-app.get("/user/:userID/:name/:password ",(req,res)=>{
+app.get("/user/:userID/:name/:password",(req,res)=>{
     console.log(req.params)
     res.send({"First Name":"Irfan","Last Name":"Parwez"})
 })
