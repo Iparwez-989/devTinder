@@ -10,7 +10,9 @@ app.post('/signup',async (req,res)=>{
     const user = new User(req.body)
 
     try{
-        
+        if(req.body.skills.length>5 ){
+            throw new Error('Cannot insert More than 5 skills')
+        }
     await user.save();
     res.send("User added successfully")
     }
@@ -59,6 +61,7 @@ app.patch('/updateUser/:userId', async (req,res)=>{
     const userId = req.params?.userId;
     // const email = req.body.email;
     const data = req.body
+    console.log(data)
     try{
         const allowedUpdates=["firstName","lastName","password","skills","photoUrl","about","Gender","age"]
         const isAllowed = Object.keys(data).every((k)=>allowedUpdates.includes(k))
@@ -66,6 +69,9 @@ app.patch('/updateUser/:userId', async (req,res)=>{
             throw new Error('Updation not allowed')
         }
         console.log(isAllowed)
+        if(data.skills && data.skills.length>5){
+            throw new Error('Cannot insert more than 5 skill')
+        }
 
     // console.log(data)
     const user = await User.findByIdAndUpdate(userId,data,{runValidators:true});
