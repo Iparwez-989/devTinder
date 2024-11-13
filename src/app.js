@@ -2,15 +2,66 @@ const express = require('express')
 const app = express();
 const connectDB = require('./config/database')
 const User = require('./models/user')
+const {validateSignupData} = require('./utils/validate')
+const bcrypt = require('bcrypt')
+const validator = require('validator')
+const cookieParser = require('cookie-parser')
 
 app.use(express.json())
+app.use(cookieParser())
+
+// for logging in
+app.post('/login',async (req,res)=>{
+    try{
+        const {email,password} = req.body
+        if(!validator.isEmail(email)){
+            throw new Error('Enter correct email address')
+        }
+        else{
+            const user = await User.findOne({email:email})
+            if(!user){
+                throw new Error('User not found')
+            }else{
+                const isPasswordValid = await bcrypt.compare(password,user.password)
+                if(isPasswordValid){
+                    res.cookie('token',"abcdefghijklmnopqrstuvwxyz")
+                    res.send('Login successfull')
+                }else{
+                    throw new Error('Invalid password!')
+                }
+            }
+        }
+    }
+    catch(err){
+        res.status(400).send('Error occured'+ err.message)
+    }
+})
+// For getting profile
+app.get('/profile',async (req,res)=>{
+    const cookies = req.cookies;
+    // const {token} = cookies;
+    console.log(cookies)
+    res.send('Reading cookies')
+})
 // For adding user to the db
 app.post('/signup',async (req,res)=>{
     console.log(req.body)
-    const user = new User(req.body)
-
+    const {firstName,lastName,email,password,age} = req.body;
     try{
-        if(req.body.skills.length>5 ){
+    // validation
+            validateSignupData(req)
+    // Encryption
+        const passwordHash = await bcrypt.hash(password,10)
+        console.log(passwordHash)
+
+    const user = new User({
+        firstName,
+        lastName,
+        email,
+        password:passwordHash,
+        age
+    })
+        if(req.body.skills && req.body.skills.length>5 ){
             throw new Error('Cannot insert More than 5 skills')
         }
     await user.save();
