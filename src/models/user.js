@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
     firstName:{
@@ -50,6 +51,7 @@ const userSchema = mongoose.Schema({
     }
 
 },{timestamps:true})  
+
 
 const User = mongoose.model("user",userSchema);
 module.exports=User

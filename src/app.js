@@ -6,6 +6,8 @@ const {validateSignupData} = require('./utils/validate')
 const bcrypt = require('bcrypt')
 const validator = require('validator')
 const cookieParser = require('cookie-parser')
+const jwt = require('jsonwebtoken')
+const {userAuth} = require('./middlewares/auth')
 
 app.use(express.json())
 app.use(cookieParser())
@@ -14,6 +16,7 @@ app.use(cookieParser())
 app.post('/login',async (req,res)=>{
     try{
         const {email,password} = req.body
+        // validations
         if(!validator.isEmail(email)){
             throw new Error('Enter correct email address')
         }
@@ -24,7 +27,11 @@ app.post('/login',async (req,res)=>{
             }else{
                 const isPasswordValid = await bcrypt.compare(password,user.password)
                 if(isPasswordValid){
-                    res.cookie('token',"abcdefghijklmnopqrstuvwxyz")
+                    // creating jwt tokens
+                    const jwtToken = await jwt.sign({id:user._id},"DevTinder@",{expiresIn:'1h'})
+                    console.log(jwtToken);
+                    res.cookie('token',jwtToken,{expires:new Date(Date.now()+3600000)})
+                    // this cookie will expire after one hour
                     res.send('Login successfull')
                 }else{
                     throw new Error('Invalid password!')
@@ -36,12 +43,29 @@ app.post('/login',async (req,res)=>{
         res.status(400).send('Error occured'+ err.message)
     }
 })
+//Sending connection request
+app.post('/sendConnectionRequest',userAuth, async(req,res)=>{
+    try{
+        const user = req.user
+    res.send(user.firstName+' sent a connection request') 
+    }
+    catch (err){
+        res.status(401).send('Error'+ err.message)
+    }
+})
 // For getting profile
-app.get('/profile',async (req,res)=>{
-    const cookies = req.cookies;
-    // const {token} = cookies;
-    console.log(cookies)
-    res.send('Reading cookies')
+app.get('/profile',userAuth,async (req,res)=>{ 
+    try{
+        // const user =await User.findById(id)
+        const user = req.user
+        if(!user){
+            throw new Error('User not found')
+        } res.send(user)
+    }
+    catch(err){
+        res.status(400).send('Unable to get profile '+ err.message)
+    }
+    
 })
 // For adding user to the db
 app.post('/signup',async (req,res)=>{

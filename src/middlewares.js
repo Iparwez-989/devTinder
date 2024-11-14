@@ -1,5 +1,5 @@
 const express = require('express');
-const { adminAuth, userAuth } = require('./middlewares/auth');
+const { adminAuth, userAuth } = require('./middlewares/authDemo');
 const app = express();
 
 // app.use('/user',(req,res,next)=>{
