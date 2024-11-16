@@ -25,10 +25,12 @@ app.post('/login',async (req,res)=>{
             if(!user){
                 throw new Error('User not found')
             }else{
-                const isPasswordValid = await bcrypt.compare(password,user.password)
+                // This validatePassword is coming from userSchema(mongoose)
+                const isPasswordValid = await user.validatePassword(password)
+                // const isPasswordValid = await bcrypt.compare(password,user.password)
                 if(isPasswordValid){
                     // creating jwt tokens
-                    const jwtToken = await jwt.sign({id:user._id},"DevTinder@",{expiresIn:'1h'})
+                    const jwtToken = await user.getJWT();
                     console.log(jwtToken);
                     res.cookie('token',jwtToken,{expires:new Date(Date.now()+3600000)})
                     // this cookie will expire after one hour
