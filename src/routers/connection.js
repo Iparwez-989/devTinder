@@ -33,6 +33,7 @@ requestRouter.post('/request/send/:status/:toUserId',userAuth, async(req,res)=>{
         }
         if(fromUserId.equals(toUserId)){
             throw new Error("Cannot send request to self.")
+            // Instead of this we can also use Pre method in connectionRequest Schema
         }
         const connectionRequests = new ConnectionRequest({
             fromUserId,
@@ -46,6 +47,40 @@ requestRouter.post('/request/send/:status/:toUserId',userAuth, async(req,res)=>{
     }
     catch (err){
         res.status(401).send('Error '+ err.message)
+    }
+})
+
+//Respond connection request
+requestRouter.post('/request/review/:status/:requestId',userAuth, async(req,res)=>{
+    try{
+        const loggedInUser = req.user
+    const {status,requestId} = req.params;
+    // validate the status
+    const allowedStatus = ["accepted","rejected"]
+    if(!allowedStatus.includes(status)){
+        throw new Error('Invalid Status')
+    }
+
+    const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status:"interested"
+    });
+
+    if(!connectionRequest){
+        return res.status(400).send('User Not Found')
+    }
+    // status = interested
+    
+    // loggedInUserId = toUserId
+    // requestId should be present in db
+
+    connectionRequest.status = status
+    const data = await connectionRequest.save()
+    res.json({message:`Connection Request ${status}`,data})
+    }
+    catch(err){
+        res.status(400).send("Error in responding request "+ err.message)
     }
 })
 
