@@ -7,14 +7,14 @@ const validator = require('validator')
 const jwt = require('jsonwebtoken')
 // For adding user to the db
 authRouter.post('/signup',async (req,res)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const {firstName,lastName,email,password,age} = req.body;
     try{
     // validation
             validateSignupData(req)
     // Encryption
         const passwordHash = await bcrypt.hash(password,10)
-        console.log(passwordHash)
+        // console.log(passwordHash)
 
     const user = new User({
         firstName,
@@ -53,7 +53,7 @@ authRouter.post('/login',async (req,res)=>{
                 if(isPasswordValid){
                     // creating jwt tokens
                     const jwtToken = await user.getJWT();
-                    console.log(jwtToken);
+                    // console.log(jwtToken);
                     res.cookie('token',jwtToken,{expires:new Date(Date.now()+3600000)})
                     // this cookie will expire after one hour
                     res.send('Login successfull')

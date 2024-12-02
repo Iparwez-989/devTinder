@@ -25,11 +25,11 @@ profileRouter.patch('/profile/edit',userAuth, async (req,res)=>{
             throw new Error('Invalid edit request')
         }
        const loggedInUser = req.user
-       console.log(loggedInUser)
+    //    console.log(loggedInUser)
     //    loggedInUser.firstName = req.body.firstName;
     //    loggedInUser.lastName = req.body.lastName;
         Object.keys(req.body).forEach(key => loggedInUser[key]= req.body[key]);
-       console.log(loggedInUser)
+    //    console.log(loggedInUser)
         await loggedInUser.save();
         // res.send(`${loggedInUser.firstName}, your profile has been edited successfully.`)
         res.json({message:`${loggedInUser.firstName}, your profile has been edited successfully.`,data:loggedInUser})
@@ -44,9 +44,9 @@ profileRouter.patch('/profile/edit',userAuth, async (req,res)=>{
 profileRouter.patch('/profile/editPassword',userAuth,async (req,res)=>{
 
     try{
-    console.log(req.user.password)
+    // console.log(req.user.password)
     const isPasswordValid = await bcrypt.compare(req.body.oldPassword,req.user.password)
-    console.log(isPasswordValid)
+    // console.log(isPasswordValid)
     if(!isPasswordValid){
         throw new Error('Your password is incorrect')
         }
@@ -55,7 +55,7 @@ profileRouter.patch('/profile/editPassword',userAuth,async (req,res)=>{
         if(req.body.newPassword === req.body.confirmNewPassword){
             const newPasswordHash = await bcrypt.hash(req.body.newPassword,10)
             loggedInUser.password = newPasswordHash;
-            console.log(newPasswordHash)
+            // console.log(newPasswordHash)
             await loggedInUser.save()
             res.send('Password changed successfully')
         }else{
@@ -75,7 +75,7 @@ profileRouter.patch('/profile/editPassword',userAuth,async (req,res)=>{
 profileRouter.get('/user',async (req,res)=>{
     const userEmail = req.body.email
     try{
-        console.log(userEmail)
+        // console.log(userEmail)
         // const user = await User.findById({_id:userid})
         // const user = await User.findById(userid)
         const user = await User.find({email:userEmail})
@@ -113,14 +113,14 @@ profileRouter.patch('/updateUser/:userId', async (req,res)=>{
     const userId = req.params?.userId;
     // const email = req.body.email;
     const data = req.body
-    console.log(data)
+    // console.log(data)
     try{
         const allowedUpdates=["firstName","lastName","password","skills","photoUrl","about","Gender","age"]
         const isAllowed = Object.keys(data).every((k)=>allowedUpdates.includes(k))
         if(!isAllowed){
             throw new Error('Updation not allowed')
         }
-        console.log(isAllowed)
+        // console.log(isAllowed)
         if(data.skills && data.skills.length>5){
             throw new Error('Cannot insert more than 5 skill')
         }
